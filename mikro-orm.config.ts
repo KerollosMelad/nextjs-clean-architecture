@@ -1,4 +1,5 @@
 import { defineConfig } from '@mikro-orm/postgresql';
+import { MemoryCacheAdapter } from '@mikro-orm/core';
 import { User } from './src/entities/models/user.entity';
 import { Todo } from './src/entities/models/todo.entity';
 import { Session } from './src/entities/models/session.entity';
@@ -8,6 +9,11 @@ export default defineConfig({
   
   // Use DATABASE_URL for Supabase connection
   clientUrl: process.env.DATABASE_URL,
+  
+  // ✅ Use memory cache for serverless environments (Vercel)
+  metadataCache: {
+    adapter: MemoryCacheAdapter,
+  },
   
   // ✅ Serverless-optimized connection pool
   pool: {
@@ -46,8 +52,6 @@ export default defineConfig({
   // Ensure connection is closed properly for serverless
   forceUndefined: true,
   
-  // Use reflection for development, build metadata for production
-  metadataProvider: process.env.NODE_ENV === 'production' 
-    ? require('@mikro-orm/reflection').TsMorphMetadataProvider 
-    : require('@mikro-orm/reflection').ReflectMetadataProvider,
+  // Use ReflectMetadataProvider for serverless compatibility
+  metadataProvider: require('@mikro-orm/reflection').ReflectMetadataProvider,
 }); 

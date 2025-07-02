@@ -2,7 +2,7 @@
 import 'server-only';
 import 'reflect-metadata';
 import { EntityManager } from '@mikro-orm/core';
-import { registerDatabase, createRequestContainer, closeDatabase, INFRASTRUCTURE_TOKENS } from './database/database.module';
+import { registerDatabase, createRequestContainer, INFRASTRUCTURE_TOKENS } from './database/database.module';
 import { registerServices, SERVICE_TOKENS } from '../services/services.di';
 import { registerRepositories, REPOSITORY_TOKENS } from '../repositories/repositories.di';
 import { registerUserModule, registerTodoModule, USER_APPLICATION_TOKENS, TODO_APPLICATION_TOKENS } from '../../application/modules';

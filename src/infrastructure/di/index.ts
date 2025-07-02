@@ -6,4 +6,4 @@ export { registerServices } from '../services/services.di';
 export { registerRepositories } from '../repositories/repositories.di';
 export { registerUserModule } from '../../application/modules/user/user.di';
 export { registerTodoModule } from '../../application/modules/todo/todo.di';
-export { registerDatabase, closeDatabase } from './database/database.module'; 
+export { registerDatabase } from './database/database.module'; 
