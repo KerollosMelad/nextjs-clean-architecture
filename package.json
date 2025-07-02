@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "mikro-orm cache:generate --config ./mikro-orm.config.ts && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",
