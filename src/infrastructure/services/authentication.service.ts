@@ -4,9 +4,7 @@ import { SESSION_COOKIE } from "../../../config";
 import { IAuthenticationService } from "../../application/modules/user/interfaces/authentication.service.interface";
 import type { ISessionRepository, IUserRepository } from "../../application/modules";
 import { REPOSITORY_TOKENS } from "../repositories/repositories.di";
-import { User } from "../../entities/models/user.entity";
-import { Session } from "../../entities/models/session.entity";
-import { Cookie } from "../../entities/models/cookie";
+import { User, Session, Cookie } from "../../entities";
 
 @injectable()
 export class AuthenticationService implements IAuthenticationService {

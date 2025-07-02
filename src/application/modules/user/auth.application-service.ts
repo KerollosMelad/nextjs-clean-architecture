@@ -1,8 +1,6 @@
 import { injectable, inject } from 'tsyringe';
 import { EntityManager } from '@mikro-orm/core';
-import { User } from '../../../entities/models/user.entity';
-import { Session } from '../../../entities/models/session.entity';
-import { Cookie } from '../../../entities/models/cookie';
+import { User, Session, Cookie } from '../../../entities';
 import type { IUserRepository, IAuthApplicationService } from './interfaces';
 import type { IAuthenticationService } from './interfaces/authentication.service.interface';
 import { INFRASTRUCTURE_TOKENS } from '../../../infrastructure/di/database/database.module';

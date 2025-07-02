@@ -1,5 +1,4 @@
-import { Cookie } from '../../../../entities/models/cookie';
-import { Session } from '../../../../entities/models/session.entity';
+import { Cookie, Session } from '../../../../entities';
 
 export interface IAuthApplicationService {
   signUp(input: { username: string; password: string }): Promise<{

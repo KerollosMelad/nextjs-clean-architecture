@@ -1,11 +1,10 @@
 import { defineConfig } from '@mikro-orm/postgresql';
 import { MemoryCacheAdapter } from '@mikro-orm/core';
-import { User } from './src/entities/models/user.entity';
-import { Todo } from './src/entities/models/todo.entity';
-import { Session } from './src/entities/models/session.entity';
 
 export default defineConfig({
-  entities: [User, Todo, Session],
+  // ✅ Use glob patterns for better Vercel compatibility
+  entities: ['./dist/src/entities/models/*.js'],
+  entitiesTs: ['./src/entities/models/*.ts'],
   
   // Use DATABASE_URL for Supabase connection
   clientUrl: process.env.DATABASE_URL,

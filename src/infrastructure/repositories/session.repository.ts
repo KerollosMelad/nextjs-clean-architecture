@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe';
 import { EntityManager } from '@mikro-orm/core';
-import { Session } from '../../entities/models/session.entity';
+import { Session } from '../../entities';
 import type { ISessionRepository } from '../../application/modules';
 import { INFRASTRUCTURE_TOKENS } from '../di/database/database.module';
 

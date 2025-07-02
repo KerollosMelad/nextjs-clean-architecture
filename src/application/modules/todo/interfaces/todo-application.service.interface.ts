@@ -1,4 +1,4 @@
-import { Todo } from '../../../../entities/models/todo.entity';
+import { Todo } from '../../../../entities';
 
 export interface ITodoApplicationService {
   createTodo(input: { content: string }, userId: string): Promise<Todo>;
