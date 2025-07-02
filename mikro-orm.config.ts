@@ -45,22 +45,23 @@ export default defineConfig({
   
   // Ensure connection is closed properly for serverless
   // forceUndefined: true, // We'll rely on cache and proper ORM lifecycle management.
-  
-  // Cache configuration: enabled for production, uses FileCacheAdapter.
-  // The cache is generated during the build step.
-  cache: {
-    enabled: process.env.NODE_ENV === 'production',
-    pretty: false,
-    adapter: require('@mikro-orm/core').FileCacheAdapter,
-    options: { cacheDir: './temp' } // Ensures consistency with Vercel logs
-  },
 
   // Metadata provider: TsMorph for development (and cache generation),
   // ReflectMetadataProvider for production (as cache should be primary).
   // However, MikroORM automatically uses cache if `cache.enabled` is true and cache exists.
   // TsMorph is needed for `cache:generate` which runs with NODE_ENV=production.
   metadataProvider: require('@mikro-orm/reflection').TsMorphMetadataProvider,
-
+  
   // Explicitly declare entities (already done, which is good)
   // entities: [User, Todo, Session], // This is already present and correct
+
+  // Cache configuration: enabled for production, uses FileCacheAdapter.
+  // The cache is generated during the build step.
+  // THIS IS NOW A TOP-LEVEL PROPERTY
+  cache: {
+    enabled: process.env.NODE_ENV === 'production',
+    pretty: false,
+    adapter: require('@mikro-orm/core').FileCacheAdapter,
+    options: { cacheDir: './temp' } // Ensures consistency with Vercel logs
+  },
 }); 
