@@ -7,6 +7,11 @@ MikroORM uses `ts-morph` to read TypeScript source files for entity discovery, w
 Entity 'Todo' was not discovered, please make sure to provide it in 'entities' array when initializing the ORM
 ```
 
+## Root Causes
+1. **String References**: Using `@ManyToOne('User')` instead of `@ManyToOne(() => User)` 
+2. **Dynamic File Access**: MikroORM trying to scan files at runtime in serverless environment
+3. **Missing Metadata Cache**: No pre-built entity metadata for production
+
 ## Solution: Pre-built Metadata Cache
 
 We've implemented MikroORM's recommended solution for serverless deployment using `GeneratedCacheAdapter`.
@@ -18,9 +23,35 @@ We've implemented MikroORM's recommended solution for serverless deployment usin
 
 ### Setup Steps:
 
-#### 1. Generate Cache Before Deployment
+#### 1. Use String References (CRITICAL)
+Keep string references to avoid circular dependencies:
+
+```typescript
+// ✅ Correct (String references - avoid circular imports)
+@ManyToOne('User', { persist: false })
+@OneToMany('Todo', 'user')
+
+// ❌ Avoid (Function references cause circular dependencies)  
+@ManyToOne(() => User, { persist: false })
+@OneToMany(() => Todo, 'user')
+```
+
+Use type imports to avoid circular dependencies:
+```typescript
+// ✅ Correct
+import type { User } from '../types';
+
+// ❌ Avoid (causes circular imports)
+import { User } from './user.entity';
+```
+
+#### 2. Generate Cache Before Deployment
 ```bash
-npm run cache:generate
+# Windows (PowerShell)
+npm run cache:generate:win
+
+# Linux/Mac  
+DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npm run cache:generate
 ```
 
 This creates `./temp/metadata.json` with all entity metadata.
@@ -70,4 +101,17 @@ The solution includes:
 - ✅ Next.js external packages configuration
 - ✅ Proper connection pooling for Vercel
 
-This approach ensures reliable entity discovery in Vercel's serverless environment while maintaining development flexibility. 
+This approach ensures reliable entity discovery in Vercel's serverless environment while maintaining development flexibility.
+
+## ✅ Solution Summary
+
+The complete working solution includes:
+
+1. **String entity references** (avoid circular dependencies)
+2. **Pre-built metadata cache** with `GeneratedCacheAdapter` 
+3. **Next.js `serverComponentsExternalPackages`** for MikroORM
+4. **Disabled dynamic file access** in production
+5. **Direct entity imports** in mikro-orm.config.ts
+6. **Type-only imports** in entity files
+
+**Key insight**: The "Entity was not discovered" error was caused by the combination of missing metadata cache AND Next.js bundling issues, not just one factor. 

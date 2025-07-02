@@ -32,6 +32,7 @@ export default defineConfig({
     warnWhenNoEntities: false,
     requireEntitiesArray: true,
     disableDynamicFileAccess: isProduction,
+    alwaysAnalyseProperties: false, // ✅ Critical for Vercel
   },
   
   // Use DATABASE_URL for Supabase connection
@@ -74,6 +75,6 @@ export default defineConfig({
   // Ensure connection is closed properly for serverless
   forceUndefined: true,
   
-  // Use ReflectMetadataProvider for serverless compatibility
+  // ✅ Use ReflectMetadataProvider for serverless compatibility
   metadataProvider: require('@mikro-orm/reflection').ReflectMetadataProvider,
 }); 

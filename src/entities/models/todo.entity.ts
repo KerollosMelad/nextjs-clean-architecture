@@ -24,7 +24,7 @@ export class Todo {
   @Property({ name: 'user_id' })
   public userId!: string;
 
-  // ✅ String reference - no circular dependency
+  // ✅ String reference with entity name - avoids circular imports
   @ManyToOne('User', { persist: false })
   public user!: User;
 

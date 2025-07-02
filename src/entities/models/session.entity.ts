@@ -18,7 +18,7 @@ export class Session {
   @Property({ name: 'expires_at' })
   private expiresAt!: Date;
 
-  // ✅ String reference - no circular dependency
+  // ✅ String reference - avoids circular dependencies
   @ManyToOne('User', { persist: false })
   public user!: User;
 
