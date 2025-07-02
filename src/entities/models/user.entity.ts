@@ -1,6 +1,6 @@
 import { Entity, PrimaryKey, Property, OneToMany, Collection } from '@mikro-orm/core';
-import { Todo } from './todo.entity';
-import { Session } from './session.entity';
+import type { Todo } from './todo.entity';
+import type { Session } from './session.entity';
 import { hash, compare } from 'bcrypt-ts';
 import { AuthenticationError } from '../errors/auth';
 import { InputParseError } from '../errors/common';
@@ -23,10 +23,10 @@ export class User {
   private passwordHash!: string;
 
   // 🎯 Navigation Properties with Lazy Loading
-  @OneToMany('Todo', 'user', { lazy: true })
+  @OneToMany(() => require('./todo.entity').Todo, 'user', { lazy: true })
   public todos = new Collection<Todo>(this);
 
-  @OneToMany('Session', 'user', { lazy: true })
+  @OneToMany(() => require('./session.entity').Session, 'user', { lazy: true })
   public sessions = new Collection<Session>(this);
 
   // Private constructor to enforce factory methods

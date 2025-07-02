@@ -25,7 +25,7 @@ export class Todo {
   protected userId!: string;
 
   // 🎯 Navigation Property with Lazy Loading (using string literal to avoid circular deps)
-  @ManyToOne('User', { lazy: true, persist: false })
+  @ManyToOne(() => require('./user.entity').User, { lazy: true, persist: false })
   public user!: User;
 
   // Private constructor to enforce factory methods
