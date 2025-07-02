@@ -22,7 +22,7 @@ export class Todo {
   private completed!: boolean;
 
   @Property({ name: 'user_id' })
-  private userId!: string;
+  protected userId!: string;
 
   // 🎯 Navigation Property with Lazy Loading (using string literal to avoid circular deps)
   @ManyToOne('User', { lazy: true, persist: false })

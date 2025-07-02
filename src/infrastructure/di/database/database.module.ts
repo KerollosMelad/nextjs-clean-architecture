@@ -20,16 +20,6 @@ export async function registerDatabase(): Promise<void> {
     INFRASTRUCTURE_TOKENS.MikroORM,
     { useValue: orm }
   );
-  
-  // Register EntityManager factory for request scoping
-  container.register<EntityManager>(
-    INFRASTRUCTURE_TOKENS.EntityManager,
-    {
-      useFactory: () => {
-        return orm.em.fork();
-      }
-    }
-  );
 }
 
 export function createRequestContainer(): typeof container {
@@ -46,9 +36,3 @@ export function createRequestContainer(): typeof container {
   
   return requestContainer;
 }
-
-export async function closeDatabase(): Promise<void> {
-  if (orm) {
-    await orm.close();
-  }
-} 

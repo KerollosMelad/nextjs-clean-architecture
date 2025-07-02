@@ -13,7 +13,7 @@ export class Session {
   private id!: string;
 
   @Property({ name: 'user_id' })
-  private userId!: string;
+  protected userId!: string;
 
   @Property({ name: 'expires_at' })
   private expiresAt!: Date;
