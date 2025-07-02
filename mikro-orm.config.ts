@@ -1,5 +1,5 @@
 import { defineConfig } from '@mikro-orm/postgresql';
-import { type Options } from '@mikro-orm/core'; // Import Options type
+// Removed import of Options type
 import { User } from './src/entities/models/user.entity';
 import { Todo } from './src/entities/models/todo.entity';
 import { Session } from './src/entities/models/session.entity';
@@ -65,4 +65,4 @@ export default defineConfig({
     adapter: require('@mikro-orm/core').FileCacheAdapter,
     options: { cacheDir: './temp' } // Ensures consistency with Vercel logs
   },
-} as Options); // Cast to Options
+} as any); // Cast to any
