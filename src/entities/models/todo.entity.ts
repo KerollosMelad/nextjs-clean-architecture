@@ -24,8 +24,11 @@ export class Todo {
   @Property({ name: 'user_id' })
   public userId!: string;
 
-  // ✅ String reference with entity name - avoids circular imports
-  @ManyToOne('User', { persist: false })
+  // ✅ String reference with properly linked FK
+  @ManyToOne('User', { 
+    fieldName: 'user_id',
+    persist: false 
+  })
   public user!: User;
 
   // Private constructor to enforce factory methods

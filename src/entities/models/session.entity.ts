@@ -18,8 +18,11 @@ export class Session {
   @Property({ name: 'expires_at' })
   private expiresAt!: Date;
 
-  // ✅ String reference - avoids circular dependencies
-  @ManyToOne('User', { persist: false })
+  // ✅ String reference with properly linked FK
+  @ManyToOne('User', { 
+    fieldName: 'user_id',
+    persist: false 
+  })
   public user!: User;
 
   // Private constructor to enforce factory methods
