@@ -18,7 +18,7 @@ export class Session {
   @Property({ name: 'expires_at' })
   private expiresAt!: Date;
 
-  @ManyToOne('User', { lazy: true, persist: false })
+  @ManyToOne({ entity: 'User', lazy: true, persist: false })
   public user!: User;
 
   // Private constructor to enforce factory methods
