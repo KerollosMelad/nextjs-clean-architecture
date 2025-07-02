@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "mikro-orm cache:generate --config ./mikro-orm.config.ts && echo \"Contents of /tmp/mikro-orm-cache after generate:\" && ls -la /tmp/mikro-orm-cache && mkdir -p ./.next/server/mikro-orm-cache && cp /tmp/mikro-orm-cache/metadata.json ./.next/server/mikro-orm-cache/metadata.json && next build",
+    "build": "mikro-orm cache:generate --config ./mikro-orm.config.ts && mkdir -p ./.next/server/mikro-orm-cache && cp /tmp/mikro-orm-cache/* ./.next/server/mikro-orm-cache/ && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",

@@ -20,22 +20,34 @@ export async function registerDatabase(): Promise<void> {
     // VERCEL_ENV might be more specific if NODE_ENV isn't 'production' during some Vercel phases
     // but config.metadataCache.options.cacheDir is already using NODE_ENV, so we align with that.
     const runtimeCacheDir = '/tmp/mikro-orm-cache';
-    const runtimeCachePath = path.join(runtimeCacheDir, 'metadata.json');
+    const buildCacheDir = path.join(process.cwd(), '.next', 'server', 'mikro-orm-cache');
+    const runtimeCacheDir = '/tmp/mikro-orm-cache';
 
     try {
-      if (fs.existsSync(buildCachePath)) {
-        console.log(`[MikroORM] Found build cache at ${buildCachePath}`);
+      if (fs.existsSync(buildCacheDir)) {
+        console.log(`[MikroORM] Found build cache directory at ${buildCacheDir}`);
         if (!fs.existsSync(runtimeCacheDir)) {
           fs.mkdirSync(runtimeCacheDir, { recursive: true });
           console.log(`[MikroORM] Created runtime cache directory ${runtimeCacheDir}`);
         }
-        fs.copyFileSync(buildCachePath, runtimeCachePath);
-        console.log(`[MikroORM] Copied cache from ${buildCachePath} to ${runtimeCachePath}`);
+
+        const cacheFiles = fs.readdirSync(buildCacheDir);
+        if (cacheFiles.length === 0) {
+          console.warn(`[MikroORM] Build cache directory ${buildCacheDir} is empty. ORM will use discovery.`);
+        } else {
+          for (const fileName of cacheFiles) {
+            const srcPath = path.join(buildCacheDir, fileName);
+            const destPath = path.join(runtimeCacheDir, fileName);
+            fs.copyFileSync(srcPath, destPath);
+            console.log(`[MikroORM] Copied cache file ${fileName} to ${destPath}`);
+          }
+          console.log(`[MikroORM] All cache files copied to ${runtimeCacheDir}`);
+        }
       } else {
-        console.warn(`[MikroORM] Build cache not found at ${buildCachePath}. ORM will use discovery.`);
+        console.warn(`[MikroORM] Build cache directory not found at ${buildCacheDir}. ORM will use discovery.`);
       }
     } catch (error) {
-      console.error('[MikroORM] Error copying cache file for production:', error);
+      console.error('[MikroORM] Error copying cache files for production:', error);
       // Proceed without cache if copying fails, ORM will use discovery.
     }
   }
