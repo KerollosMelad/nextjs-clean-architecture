@@ -1,10 +1,19 @@
 import { defineConfig } from '@mikro-orm/postgresql';
 import { MemoryCacheAdapter } from '@mikro-orm/core';
+import { User } from './src/entities/models/user.entity';
+import { Todo } from './src/entities/models/todo.entity';
+import { Session } from './src/entities/models/session.entity';
 
 export default defineConfig({
-  // ✅ Use glob patterns for better Vercel compatibility
-  entities: ['./dist/src/entities/models/*.js'],
-  entitiesTs: ['./src/entities/models/*.ts'],
+  // ✅ Direct imports - most reliable for Vercel
+  entities: [User, Todo, Session],
+  
+  // ✅ Explicit discovery settings for Vercel
+  discovery: {
+    warnWhenNoEntities: false,
+    requireEntitiesArray: true,
+    disableDynamicFileAccess: true,
+  },
   
   // Use DATABASE_URL for Supabase connection
   clientUrl: process.env.DATABASE_URL,
