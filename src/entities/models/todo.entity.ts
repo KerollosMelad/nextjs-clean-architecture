@@ -10,7 +10,7 @@ export interface TodoProps {
   userId: string;
 }
 
-@Entity()
+@Entity({ tableName: 'todo' })
 export class Todo {
   @PrimaryKey()
   private id?: number; // ✅ Optional until set by database

@@ -7,7 +7,7 @@ export interface SessionProps {
   expiresAt: Date;
 }
 
-@Entity()
+@Entity({ tableName: 'session' })
 export class Session {
   @PrimaryKey()
   private id!: string;

@@ -1,19 +1,10 @@
 import { defineConfig } from '@mikro-orm/postgresql';
-
-const isProd = process.env.NODE_ENV === 'production';
+import { User } from './src/entities/models/user.entity';
+import { Todo } from './src/entities/models/todo.entity';
+import { Session } from './src/entities/models/session.entity';
 
 export default defineConfig({
-  entities: isProd
-    ? [
-        require('./dist/entities/models/user.entity').User,
-        require('./dist/entities/models/todo.entity').Todo,
-        require('./dist/entities/models/session.entity').Session,
-      ]
-    : [
-        require('./src/entities/models/user.entity').User,
-        require('./src/entities/models/todo.entity').Todo,
-        require('./src/entities/models/session.entity').Session,
-      ],
+  entities: [User, Todo, Session],
   
   // Use DATABASE_URL for Supabase connection
   clientUrl: process.env.DATABASE_URL,

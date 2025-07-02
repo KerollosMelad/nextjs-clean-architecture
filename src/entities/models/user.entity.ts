@@ -11,7 +11,7 @@ export interface UserProps {
   passwordHash: string;
 }
 
-@Entity()
+@Entity({ tableName: 'user' })
 export class User {
   @PrimaryKey()
   private id!: string;
