@@ -12,8 +12,15 @@ export const INFRASTRUCTURE_TOKENS = {
 let orm: MikroORM;
 
 export async function registerDatabase(): Promise<void> {
-  // Initialize MikroORM
-  orm = await MikroORM.init(config);
+  // ✅ Check if ORM was already initialized in instrumentation
+  if ((global as any).orm) {
+    console.log('🔄 [Database] Using ORM from instrumentation hook');
+    orm = (global as any).orm;
+  } else {
+    console.log('🔧 [Database] Initializing new ORM instance');
+    // Fallback: Initialize MikroORM here if not done in instrumentation
+    orm = await MikroORM.init(config);
+  }
   
   // Register ORM instance (used by createRequestContainer)
   container.register<MikroORM>(

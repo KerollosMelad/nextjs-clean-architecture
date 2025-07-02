@@ -4,7 +4,7 @@ import { User, Todo, Session } from './src/entities';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const isVercel = process.env.VERCEL === '1';
-const forceDisableCache = process.env.MIKRO_ORM_DISABLE_CACHE === 'true';
+const forceDisableCache = process.env.MIKRO_ORM_DISABLE_CACHE === 'true' || isVercel; // Always disable cache on Vercel
 
   console.log('🔧 MikroORM Config Loading:', {
     NODE_ENV: process.env.NODE_ENV,
