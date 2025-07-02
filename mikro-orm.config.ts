@@ -1,7 +1,10 @@
 import { defineConfig } from '@mikro-orm/postgresql';
+
+console.log('Loading MikroORM entities...');
 import { User } from './src/entities/models/user.entity';
 import { Todo } from './src/entities/models/todo.entity';
 import { Session } from './src/entities/models/session.entity';
+console.log('Loaded entities:', { User, Todo, Session });
 
 export default defineConfig({
   entities: [User, Todo, Session],
@@ -56,4 +59,6 @@ export default defineConfig({
   metadataProvider: process.env.NODE_ENV === 'production' 
     ? require('@mikro-orm/reflection').TsMorphMetadataProvider 
     : require('@mikro-orm/reflection').ReflectMetadataProvider,
-}); 
+});
+
+console.log('MikroORM config exported with entities:', [User.name, Todo.name, Session.name]); 
