@@ -5,11 +5,7 @@ import webpack from 'webpack';
 const nextConfig = {
   experimental: {
     instrumentationHook: true,
-    outputFileTracingIncludes: {
-      // Include the MikroORM metadata cache in the deployment for serverless functions
-      // Adjust the key if your server files are in a specific directory like '/api/*' or '/app/*'
-      '/**/*': ['./temp/metadata.json'],
-    },
+    // outputFileTracingIncludes removed
   },
   webpack: (config, { isServer }) => {
     // Exclude MikroORM and database-related modules from client-side bundle

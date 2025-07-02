@@ -16,7 +16,7 @@ let orm: MikroORM;
 export async function registerDatabase(): Promise<void> {
   // In production (Vercel runtime), copy pre-generated cache to writable /tmp location
   if (process.env.NODE_ENV === 'production') {
-    const buildCachePath = path.join(process.cwd(), 'temp', 'metadata.json');
+    const buildCachePath = path.join(process.cwd(), '.next', 'server', 'mikro-orm-cache', 'metadata.json');
     // VERCEL_ENV might be more specific if NODE_ENV isn't 'production' during some Vercel phases
     // but config.metadataCache.options.cacheDir is already using NODE_ENV, so we align with that.
     const runtimeCacheDir = '/tmp/mikro-orm-cache';
