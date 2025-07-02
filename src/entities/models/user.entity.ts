@@ -22,10 +22,10 @@ export class User {
   private passwordHash!: string;
 
   // ✅ String references - avoids circular dependencies
-  @OneToMany('Todo', 'user', { lazy: true })
+  @OneToMany('Todo', 'user')
   public todos = new Collection<Todo>(this);
 
-  @OneToMany('Session', 'user', { lazy: true })
+  @OneToMany('Session', 'user')
   public sessions = new Collection<Session>(this);
 
   // Private constructor to enforce factory methods

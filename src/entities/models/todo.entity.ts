@@ -22,10 +22,10 @@ export class Todo {
   private completed!: boolean;
 
   @Property({ name: 'user_id' })
-  private userId!: string;
+  public userId!: string;
 
   // ✅ String reference - no circular dependency
-  @ManyToOne('User', { lazy: true, persist: false })
+  @ManyToOne('User', { persist: false })
   public user!: User;
 
   // Private constructor to enforce factory methods

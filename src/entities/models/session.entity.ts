@@ -19,7 +19,7 @@ export class Session {
   private expiresAt!: Date;
 
   // ✅ String reference - no circular dependency
-  @ManyToOne('User', { lazy: true, persist: false })
+  @ManyToOne('User', { persist: false })
   public user!: User;
 
   // Private constructor to enforce factory methods
