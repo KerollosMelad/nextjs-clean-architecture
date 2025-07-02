@@ -20,6 +20,22 @@ const nextConfig = {
     ],
   },
   webpack: (config, { isServer }) => {
+    // ✅ Prevent entity class name minification for MikroORM
+    if (isServer && config.optimization && config.optimization.minimizer) {
+      config.optimization.minimizer.forEach((minimizer) => {
+        if (minimizer.constructor.name === 'TerserPlugin') {
+          if (!minimizer.options) minimizer.options = {};
+          if (!minimizer.options.terserOptions) minimizer.options.terserOptions = {};
+          if (!minimizer.options.terserOptions.keep_classnames) {
+            minimizer.options.terserOptions.keep_classnames = /^(User|Todo|Session)$/;
+          }
+          if (!minimizer.options.terserOptions.keep_fnames) {
+            minimizer.options.terserOptions.keep_fnames = /^(User|Todo|Session)$/;
+          }
+        }
+      });
+    }
+
     // Exclude MikroORM and database-related modules from client-side bundle
     if (!isServer) {
       config.resolve.fallback = {

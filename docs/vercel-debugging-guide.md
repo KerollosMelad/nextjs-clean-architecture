@@ -16,6 +16,16 @@ This guide helps you debug and resolve MikroORM "Entity was not discovered" erro
 vercel --prod --force
 ```
 
+### **🆘 Emergency Workaround: Disable Cache**
+If entity discovery still fails, temporarily disable the cache:
+
+```bash
+# In Vercel Dashboard, add environment variable:
+MIKRO_ORM_DISABLE_CACHE=true
+
+# This forces runtime entity discovery (slower but works)
+```
+
 ### 2. **Use Debug Endpoint**
 After deployment, visit: `https://your-app.vercel.app/api/debug`
 
@@ -65,8 +75,12 @@ vercel logs --follow
 ### **Issue: "Entity was not discovered"**
 **Symptoms:** 
 - Works locally but fails on Vercel
-- Error mentions specific entity name
+- Error mentions specific entity name like `Entity 'Todo' was not discovered`
 - Cache generation succeeds but runtime fails
+- Logs show entity constructors as single letters: `'H', 'K', 'q'`
+
+**Root Cause:**
+Vercel's minification changes entity class names (`User` → `H`) but cache/relationships still expect original names.
 
 **Solutions:**
 1. **Clear all caches** (Vercel + local)
@@ -75,7 +89,13 @@ vercel logs --follow
    vercel --prod --force
    ```
 
-2. **Check entity imports in config**
+2. **Emergency workaround - Disable cache**
+   ```bash
+   # Set in Vercel environment variables:
+   MIKRO_ORM_DISABLE_CACHE=true
+   ```
+
+3. **Check entity imports in config**
    ```typescript
    // ✅ Good: Direct imports
    import { User, Todo, Session } from './src/entities';
@@ -85,7 +105,7 @@ vercel logs --follow
    entitiesDirs: ['./src/entities']
    ```
 
-3. **Verify foreign key definitions**
+4. **Verify foreign key definitions**
    ```typescript
    // ✅ Good: Linked FK
    @Property({ name: 'user_id' })
@@ -155,10 +175,25 @@ DATABASE_URL=postgresql://...
 ```
 
 ### **Key Log Messages to Look For**
+
+**✅ Good logs (working correctly):**
 ```
 🔧 MikroORM Config Loading: { isProduction: true, isVercel: true }
-📁 Cache Status: { cacheExists: true, size: 12345 }
+📁 Cache Status: { cacheExists: true, size: 2707 }
+✅ Cache loaded successfully, entities: [ 'User', 'Todo', 'Session' ]
 🔍 MikroORM: [discovery] - entity discovery finished, found 3 entities
+```
+
+**❌ Problem logs (minification issue):**
+```
+🏗️ Entities: { userConstructor: 'H', todoConstructor: 'K', sessionConstructor: 'q' }
+MetadataError: Entity 'Todo' was not discovered (used in H.todos)
+```
+
+**🔄 Fallback logs (cache disabled):**
+```
+🔧 MikroORM Config Loading: { forceDisableCache: true }
+🔄 Falling back to runtime discovery
 ```
 
 ### **Vercel Function Timeout**
@@ -194,11 +229,20 @@ NODE_ENV=production npm run dev
 # Clear local cache
 npm run cache:clear
 
-# Build with cache generation
+# Build with cache generation (includes minification fixes)
 npm run build:vercel
 
-# Deploy with force flag
+# Deploy with force flag to clear Vercel cache
 vercel --prod --force
+```
+
+**If deployment still fails with entity discovery errors:**
+```bash
+# Set emergency fallback in Vercel Dashboard:
+# Environment Variables → MIKRO_ORM_DISABLE_CACHE = true
+# Then redeploy
+
+# This bypasses cache and uses runtime discovery
 ```
 
 ### **3. Post-deployment Verification**

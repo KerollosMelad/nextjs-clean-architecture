@@ -4,15 +4,17 @@ import { User, Todo, Session } from './src/entities';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const isVercel = process.env.VERCEL === '1';
+const forceDisableCache = process.env.MIKRO_ORM_DISABLE_CACHE === 'true';
 
-console.log('🔧 MikroORM Config Loading:', {
-  NODE_ENV: process.env.NODE_ENV,
-  isProduction,
-  isVercel,
-  DATABASE_URL: process.env.DATABASE_URL ? '✅ Set' : '❌ Missing',
-  cacheDir: './temp',
-  cacheFile: './temp/metadata.json'
-});
+  console.log('🔧 MikroORM Config Loading:', {
+    NODE_ENV: process.env.NODE_ENV,
+    isProduction,
+    isVercel,
+    forceDisableCache,
+    DATABASE_URL: process.env.DATABASE_URL ? '✅ Set' : '❌ Missing',
+    cacheDir: './temp',
+    cacheFile: './temp/metadata.json'
+  });
 
 // Check if cache file exists
 const fs = require('fs');
@@ -52,16 +54,19 @@ export default defineConfig({
   // Direct entity imports (not entitiesDirs)
   entities: [User, Todo, Session],
   
-  // ✅ Production: Use pre-built cache, Development: Use memory cache
+  // ✅ Production: Use pre-built cache, Development: Use memory cache  
   metadataCache: {
     enabled: true,
-    adapter: isProduction && cacheExists ? GeneratedCacheAdapter : MemoryCacheAdapter,
-    options: isProduction && cacheExists ? {
+    adapter: isProduction && cacheExists && !forceDisableCache ? GeneratedCacheAdapter : MemoryCacheAdapter,
+    options: isProduction && cacheExists && !forceDisableCache ? {
       data: (() => {
         try {
-          return require('./temp/metadata.json');
+          const cacheData = require('./temp/metadata.json');
+          console.log('✅ Cache loaded successfully, entities:', Object.keys(cacheData));
+          return cacheData;
         } catch (error) {
           console.error('❌ Failed to load cache file:', error);
+          console.log('🔄 Falling back to runtime discovery');
           return {};
         }
       })()
