@@ -14,8 +14,8 @@ export async function register() {
         ...config.default,
         // ✅ Force Vercel-optimized settings in instrumentation
         metadataCache: { enabled: false },
+        forceEntityConstructor: false,
         discovery: { 
-          disableDynamicFileAccess: true,
           warnWhenNoEntities: false,
           requireEntitiesArray: true,
         },

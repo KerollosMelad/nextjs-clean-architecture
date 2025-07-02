@@ -1,7 +1,5 @@
 import { defineConfig } from '@mikro-orm/postgresql';
-import { User } from './src/entities/models/user.entity';
-import { Todo } from './src/entities/models/todo.entity';
-import { Session } from './src/entities/models/session.entity';
+import { User, Todo, Session } from './src/entities';
 
 export default defineConfig({
   // ✅ Direct entity references (not entitiesDirs)
@@ -15,8 +13,14 @@ export default defineConfig({
     enabled: false,
   },
   
-  // ✅ Force entity constructor for bundling consistency
-  forceEntityConstructor: true,
+  // ✅ Disable force entity constructor to fix prototype issues
+  forceEntityConstructor: false,
+  
+  // ✅ Simplified discovery settings
+  discovery: {
+    warnWhenNoEntities: false,
+    requireEntitiesArray: true,
+  },
   
   // ✅ SSL configuration for Supabase
   driverOptions: {

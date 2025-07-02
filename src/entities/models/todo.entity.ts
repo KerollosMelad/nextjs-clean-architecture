@@ -24,21 +24,23 @@ export class Todo {
   @Property({ name: 'user_id' })
   public userId!: string;
 
-  // ✅ String reference with properly linked FK
+  // ✅ String reference - MikroORM handles discovery properly
   @ManyToOne('User', { 
     fieldName: 'user_id',
     persist: false 
   })
   public user!: User;
 
-  // Private constructor to enforce factory methods
-  private constructor(props: TodoProps) {
-    if (props.id !== undefined) {
-      this.id = props.id; // Only set if provided (database reconstruction)
+  // Public constructor for MikroORM compatibility
+  constructor(props?: TodoProps) {
+    if (props) {
+      if (props.id !== undefined) {
+        this.id = props.id; // Only set if provided (database reconstruction)
+      }
+      this.content = props.content;
+      this.completed = props.completed;
+      this.userId = props.userId;
     }
-    this.content = props.content;
-    this.completed = props.completed;
-    this.userId = props.userId;
   }
 
   // Factory method for creating new todos

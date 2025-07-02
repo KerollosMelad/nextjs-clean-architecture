@@ -18,18 +18,20 @@ export class Session {
   @Property({ name: 'expires_at' })
   private expiresAt!: Date;
 
-  // ✅ String reference with properly linked FK
+  // ✅ String reference - MikroORM handles discovery properly
   @ManyToOne('User', { 
     fieldName: 'user_id',
     persist: false 
   })
   public user!: User;
 
-  // Private constructor to enforce factory methods
-  private constructor(props: SessionProps) {
-    this.id = props.id;
-    this.userId = props.userId;
-    this.expiresAt = props.expiresAt;
+  // Public constructor for MikroORM compatibility
+  constructor(props?: SessionProps) {
+    if (props) {
+      this.id = props.id;
+      this.userId = props.userId;
+      this.expiresAt = props.expiresAt;
+    }
   }
 
   // Factory method for creating new sessions

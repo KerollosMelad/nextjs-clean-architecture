@@ -33,8 +33,24 @@ export class AuthApplicationService implements IAuthApplicationService {
     // Generate new user ID
     const userId = this.authService.generateUserId();
 
-    // Create user using domain logic (includes validation and password hashing)
-    const user = await User.create(userId, input.username, input.password);
+    // Domain validation (replicated from factory method)
+    if (input.username.length < 3 || input.username.length > 31) {
+      throw new Error('Username must be between 3 and 31 characters');
+    }
+    if (input.password.length < 6 || input.password.length > 255) {
+      throw new Error('Password must be between 6 and 255 characters');
+    }
+    
+    // Hash password
+    const { hash } = await import('bcrypt-ts');
+    const passwordHash = await hash(input.password, 12);
+
+    // Create user using em.create to ensure proper entity registration
+    const user = this.em.create(User, {
+      id: userId,
+      username: input.username,
+      passwordHash: passwordHash,
+    });
 
     // Save user to database (persists only, doesn't flush)
     await this.userRepository.create(user);

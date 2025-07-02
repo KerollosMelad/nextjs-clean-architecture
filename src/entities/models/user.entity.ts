@@ -2,7 +2,6 @@ import { Entity, PrimaryKey, Property, OneToMany, Collection } from '@mikro-orm/
 import { hash, compare } from 'bcrypt-ts';
 import { AuthenticationError } from '../errors/auth';
 import { InputParseError } from '../errors/common';
-import type { Todo, Session } from '../types';
 
 export interface UserProps {
   id: string;
@@ -21,18 +20,20 @@ export class User {
   @Property({ name: 'password_hash' })
   private passwordHash!: string;
 
-  // ✅ String references - avoids circular dependencies
+  // ✅ String references - MikroORM handles discovery properly  
   @OneToMany('Todo', 'user')
-  public todos = new Collection<Todo>(this);
+  public todos = new Collection<any>(this);
 
-  @OneToMany('Session', 'user')
-  public sessions = new Collection<Session>(this);
+  @OneToMany('Session', 'user')  
+  public sessions = new Collection<any>(this);
 
-  // Private constructor to enforce factory methods
-  private constructor(props: UserProps) {
-    this.id = props.id;
-    this.username = props.username;
-    this.passwordHash = props.passwordHash;
+  // Public constructor for MikroORM compatibility  
+  constructor(props?: UserProps) {
+    if (props) {
+      this.id = props.id;
+      this.username = props.username;
+      this.passwordHash = props.passwordHash;
+    }
   }
 
   // Factory method for creating new users
