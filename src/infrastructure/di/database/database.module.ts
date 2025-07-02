@@ -21,7 +21,7 @@ export async function registerDatabase(): Promise<void> {
     // but config.metadataCache.options.cacheDir is already using NODE_ENV, so we align with that.
     const runtimeCacheDir = '/tmp/mikro-orm-cache';
     const buildCacheDir = path.join(process.cwd(), '.next', 'server', 'mikro-orm-cache');
-    const runtimeCacheDir = '/tmp/mikro-orm-cache';
+    // const runtimeCacheDir = '/tmp/mikro-orm-cache'; // Redundant declaration removed
 
     try {
       if (fs.existsSync(buildCacheDir)) {
