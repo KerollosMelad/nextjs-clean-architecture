@@ -1,7 +1,7 @@
 import { Entity, PrimaryKey, Property, ManyToOne, Rel } from '@mikro-orm/core';
 import { InputParseError } from '../errors/common';
 import { UnauthorizedError } from '../errors/auth';
-import type { User } from '../types';
+import type { User } from './user.entity';
 
 export interface TodoProps {
   id?: number; // Optional for new entities, required for database reconstruction
@@ -25,7 +25,7 @@ export class Todo {
   public userId!: string;
 
   // ✅ String reference - MikroORM handles discovery properly
-  @ManyToOne('User', { 
+  @ManyToOne(() => require('./user.entity').User as any, { 
     fieldName: 'user_id',
     persist: false 
   })

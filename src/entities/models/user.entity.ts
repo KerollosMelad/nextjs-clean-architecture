@@ -2,6 +2,8 @@ import { Entity, PrimaryKey, Property, OneToMany, Collection } from '@mikro-orm/
 import { hash, compare } from 'bcrypt-ts';
 import { AuthenticationError } from '../errors/auth';
 import { InputParseError } from '../errors/common';
+import type { Todo } from './todo.entity';
+import type { Session } from './session.entity';
 
 export interface UserProps {
   id: string;
@@ -20,12 +22,12 @@ export class User {
   @Property({ name: 'password_hash' })
   public passwordHash!: string;
 
-  // ✅ String references - MikroORM handles discovery properly  
-  @OneToMany('Todo', 'user')
-  public todos = new Collection<any>(this);
+  // ✅ Use class references to avoid minification issues  
+  @OneToMany(() => require('./todo.entity').Todo, 'user')
+  public todos = new Collection<Todo>(this);
 
-  @OneToMany('Session', 'user')  
-  public sessions = new Collection<any>(this);
+  @OneToMany(() => require('./session.entity').Session, 'user')  
+  public sessions = new Collection<Session>(this);
 
   // Public constructor for MikroORM compatibility  
   constructor(props?: UserProps) {

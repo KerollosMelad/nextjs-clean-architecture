@@ -3,6 +3,7 @@ import webpack from 'webpack';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  swcMinify: false,
   experimental: {
     instrumentationHook: true,
     // ✅ Critical for MikroORM on Vercel - tells Next.js to treat these packages as external in server components

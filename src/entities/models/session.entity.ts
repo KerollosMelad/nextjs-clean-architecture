@@ -1,5 +1,5 @@
 import { Entity, PrimaryKey, Property, ManyToOne } from '@mikro-orm/core';
-import type { User } from '../types';
+import type { User } from './user.entity';
 
 export interface SessionProps {
   id: string;
@@ -18,8 +18,8 @@ export class Session {
   @Property({ name: 'expires_at' })
   public expiresAt!: Date;
 
-  // ✅ String reference - MikroORM handles discovery properly
-  @ManyToOne('User', { 
+  // ✅ Use class reference to avoid minification issues
+  @ManyToOne(() => require('./user.entity').User as any, { 
     fieldName: 'user_id',
     persist: false 
   })
