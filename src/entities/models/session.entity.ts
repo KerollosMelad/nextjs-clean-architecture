@@ -7,7 +7,7 @@ export interface SessionProps {
   expiresAt: Date;
 }
 
-@Entity()
+@Entity({ tableName: 'session' })
 export class Session {
   @PrimaryKey()
   private id!: string;
@@ -18,7 +18,7 @@ export class Session {
   @Property({ name: 'expires_at' })
   private expiresAt!: Date;
 
-  @ManyToOne('User', { lazy: true, persist: false })
+  @ManyToOne(() => require('./user.entity').User, { lazy: true, persist: false })
   public user!: User;
 
   // Private constructor to enforce factory methods
