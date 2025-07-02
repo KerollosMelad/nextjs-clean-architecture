@@ -18,7 +18,9 @@
     "schema:drop": "mikro-orm schema:drop --config ./mikro-orm.config.ts",
     "schema:update": "mikro-orm schema:update --config ./mikro-orm.config.ts",
     "cache:generate": "mikro-orm cache:generate --combined --ts --config ./mikro-orm.config.ts",
-    "cache:generate:win": "$env:DATABASE_URL='postgresql://dummy:dummy@localhost:5432/dummy'; mikro-orm cache:generate --combined --ts --config ./mikro-orm.config.ts"
+    "cache:generate:win": "$env:DATABASE_URL='postgresql://dummy:dummy@localhost:5432/dummy'; mikro-orm cache:generate --combined --ts --config ./mikro-orm.config.ts",
+    "cache:clear": "rmdir /s /q .next temp dist 2>nul || rm -rf .next temp dist",
+    "clean:build": "npm run cache:clear && npm run build"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.0.0",
