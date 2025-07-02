@@ -62,6 +62,8 @@ export default defineConfig({
     enabled: process.env.NODE_ENV === 'production',
     pretty: false,
     adapter: FileCacheAdapter, // Use imported FileCacheAdapter
-    options: { cacheDir: './temp' } // Ensures consistency with Vercel logs
+    options: {
+      cacheDir: process.env.NODE_ENV === 'production' ? '/tmp/mikro-orm-cache' : './temp'
+    }
   },
-}); // Removed 'as any' cast
+});
