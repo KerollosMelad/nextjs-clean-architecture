@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { signUpAction } from '@/app/(auth)/actions';
+import { cookies } from 'next/headers';
+
+import { SESSION_COOKIE } from '@/config';
+import { withRequestScoped } from '@/src/infrastructure/di/server-container';
+import { USER_APPLICATION_TOKENS } from '@/src/application/modules';
+import type { IAuthApplicationService } from '@/src/application/modules';
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     
-    // Client-side validation
+    // Validation
     const username = formData.get('username') as string;
     const password = formData.get('password') as string;
     const confirmPassword = formData.get('confirm_password') as string;
@@ -24,22 +29,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Call the Server Action - single source of truth for business logic  
-    const result = await signUpAction(formData);
-    
-    if (result.success) {
-      return NextResponse.json({ success: true });
-    } else {
-      return NextResponse.json(
-        { error: result.error || 'Registration failed' },
-        { status: 400 }
+    // Direct business logic - most reliable approach
+    const result = await withRequestScoped(async (getService) => {
+      const authService = getService<IAuthApplicationService>(
+        USER_APPLICATION_TOKENS.IAuthApplicationService
       );
-    }
+      return await authService.signUp({ username, password });
+    });
+
+    // Set cookie for successful auth
+    cookies().set(result.cookie.name, result.cookie.value, result.cookie.attributes);
+
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('API Error during sign up:', error);
+    console.error('Error during sign up:', error);
     
     return NextResponse.json(
-      { error: 'An unexpected error occurred' },
+      {
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
+      },
       { status: 500 }
     );
   }
