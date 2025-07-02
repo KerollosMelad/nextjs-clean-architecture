@@ -1,12 +1,12 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Loader, Trash } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Checkbox } from './_components/ui/checkbox';
 import { cn } from './_components/utils';
-import { bulkUpdateTodosAction, toggleTodoAction } from './actions';
 import { Button } from './_components/ui/button';
 import type { TodoDTO } from './types';
 
@@ -15,6 +15,7 @@ export function Todos({ todos }: { todos: TodoDTO[] }) {
   const [dirty, setDirty] = useState<number[]>([]);
   const [deleted, setDeleted] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleToggle = useCallback(
     async (id: number) => {
@@ -29,14 +30,24 @@ export function Todos({ todos }: { todos: TodoDTO[] }) {
         }
       } else {
         try {
-          await toggleTodoAction(id);
-          toast.success('Todo toggled!');
+          const response = await fetch(`/api/todos/${id}`, {
+            method: 'PATCH',
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            toast.success('Todo toggled!');
+            router.refresh(); // Refresh to show updated state
+          } else {
+            toast.error(result.error || 'Failed to toggle todo');
+          }
         } catch (error) {
           toast.error('Failed to toggle todo');
         }
       }
     },
-    [bulkMode, dirty]
+    [bulkMode, dirty, router]
   );
 
   const markForDeletion = useCallback(
@@ -65,8 +76,20 @@ export function Todos({ todos }: { todos: TodoDTO[] }) {
     try {
       const formData = new FormData();
       dirty.forEach(id => formData.append('todoIds', id.toString()));
-      await bulkUpdateTodosAction(formData);
-      toast.success('Bulk update completed!');
+
+      const response = await fetch('/api/todos/bulk', {
+        method: 'PATCH',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        toast.success('Bulk update completed!');
+        router.refresh(); // Refresh to show updated state
+      } else {
+        toast.error(result.error || 'Failed to update todos');
+      }
     } catch (error) {
       toast.error('Failed to update todos');
     }

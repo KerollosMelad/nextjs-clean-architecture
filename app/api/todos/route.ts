@@ -1,35 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getTodosAction, createTodoAction } from '@/app/actions';
+import { cookies } from 'next/headers';
 
-// GET /api/todos - Get all todos for the authenticated user
-export async function GET() {
-  try {
-    // Call the Server Action - single source of truth for business logic
-    const todos = await getTodosAction();
-    return NextResponse.json({ todos });
-  } catch (error) {
-    console.error('API Error fetching todos:', error);
-    
-    // Check if it's an authentication error
-    if (error instanceof Error && error.message.includes('No active session')) {
-      return NextResponse.json(
-        { error: 'Unauthenticated' },
-        { status: 401 }
-      );
-    }
-    
-    return NextResponse.json(
-      { error: 'Failed to fetch todos' },
-      { status: 500 }
-    );
-  }
-}
+import { SESSION_COOKIE } from '@/config';
+import { withRequestScoped } from '@/src/infrastructure/di/server-container';
+import { USER_APPLICATION_TOKENS, TODO_APPLICATION_TOKENS } from '@/src/application/modules';
+import type { ITodoApplicationService, IAuthApplicationService } from '@/src/application/modules';
+import { UnauthenticatedError } from '@/src/entities/errors/auth';
 
 // POST /api/todos - Create a new todo
 export async function POST(request: NextRequest) {
   try {
+    const sessionId = cookies().get(SESSION_COOKIE)?.value;
+    if (!sessionId) {
+      return NextResponse.json(
+        { error: 'No active session found' },
+        { status: 401 }
+      );
+    }
+
     const formData = await request.formData();
-    const content = formData.get('content')?.toString();
+    const content = formData.get('content') as string;
 
     if (!content?.trim()) {
       return NextResponse.json(
@@ -38,21 +28,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Call the Server Action - single source of truth for business logic
-    await createTodoAction(formData);
-    
+    await withRequestScoped(async (getService) => {
+      const authService = getService<IAuthApplicationService>(
+        USER_APPLICATION_TOKENS.IAuthApplicationService
+      );
+      const userId = await authService.getUserIdFromSession(sessionId);
+
+      const todoService = getService<ITodoApplicationService>(
+        TODO_APPLICATION_TOKENS.ITodoApplicationService
+      );
+      await todoService.createTodo({ content: content.trim() }, userId);
+    });
+
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('API Error creating todo:', error);
-    
-    // Check if it's an authentication error
-    if (error instanceof Error && error.message.includes('No active session')) {
+    if (error instanceof UnauthenticatedError) {
       return NextResponse.json(
         { error: 'Unauthenticated' },
         { status: 401 }
       );
     }
-    
+
+    console.error('Error creating todo:', error);
     return NextResponse.json(
       { error: 'Failed to create todo' },
       { status: 500 }
