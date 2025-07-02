@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe';
 import { EntityManager } from '@mikro-orm/core';
-import { Todo } from '../../entities/models/todo.entity';
+import { Todo } from '../../entities';
 import type { ITodoRepository } from '../../application/modules';
 import { INFRASTRUCTURE_TOKENS } from '../di/database/database.module';
 

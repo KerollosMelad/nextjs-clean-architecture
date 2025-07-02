@@ -1,9 +1,9 @@
 import { Entity, PrimaryKey, Property, OneToMany, Collection } from '@mikro-orm/core';
-import { Todo } from './todo.entity';
-import { Session } from './session.entity';
 import { hash, compare } from 'bcrypt-ts';
 import { AuthenticationError } from '../errors/auth';
 import { InputParseError } from '../errors/common';
+import type { Todo } from './todo.entity';
+import type { Session } from './session.entity';
 
 export interface UserProps {
   id: string;
@@ -14,26 +14,28 @@ export interface UserProps {
 @Entity()
 export class User {
   @PrimaryKey()
-  private id!: string;
+  public id!: string;
 
   @Property()
-  private username!: string;
+  public username!: string;
 
   @Property({ name: 'password_hash' })
-  private passwordHash!: string;
+  public passwordHash!: string;
 
-  // 🎯 Navigation Properties with Lazy Loading
-  @OneToMany('Todo', 'user', { lazy: true })
+  // ✅ Use class references to avoid minification issues  
+  @OneToMany(() => require('./todo.entity').Todo, 'user')
   public todos = new Collection<Todo>(this);
 
-  @OneToMany('Session', 'user', { lazy: true })
+  @OneToMany(() => require('./session.entity').Session, 'user')  
   public sessions = new Collection<Session>(this);
 
-  // Private constructor to enforce factory methods
-  private constructor(props: UserProps) {
-    this.id = props.id;
-    this.username = props.username;
-    this.passwordHash = props.passwordHash;
+  // Public constructor for MikroORM compatibility  
+  constructor(props?: UserProps) {
+    if (props) {
+      this.id = props.id;
+      this.username = props.username;
+      this.passwordHash = props.passwordHash;
+    }
   }
 
   // Factory method for creating new users

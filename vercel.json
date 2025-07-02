@@ -1,0 +1,19 @@
+{
+  "buildCommand": "npm run build:vercel",
+  "installCommand": "npm ci",
+  "framework": "nextjs",
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "NODE_ENV": "production",
+    "VERCEL": "1"
+  },
+  "regions": ["iad1"],
+  "github": {
+    "deploymentEnabled": true,
+    "autoAlias": false
+  }
+} 

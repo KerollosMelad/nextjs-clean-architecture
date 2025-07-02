@@ -1,4 +1,4 @@
-import { Session } from '../../../../entities/models/session.entity';
+import { Session } from '../../../../entities';
 
 export interface ISessionRepository {
   // Core session operations

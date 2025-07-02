@@ -10,22 +10,28 @@ export interface SessionProps {
 @Entity()
 export class Session {
   @PrimaryKey()
-  private id!: string;
+  public id!: string;
 
   @Property({ name: 'user_id' })
-  private userId!: string;
+  public userId!: string;
 
   @Property({ name: 'expires_at' })
-  private expiresAt!: Date;
+  public expiresAt!: Date;
 
-  @ManyToOne('User', { lazy: true, persist: false })
+  // ✅ Use class reference to avoid minification issues
+  @ManyToOne(() => require('./user.entity').User as any, { 
+    fieldName: 'user_id',
+    persist: false 
+  })
   public user!: User;
 
-  // Private constructor to enforce factory methods
-  private constructor(props: SessionProps) {
-    this.id = props.id;
-    this.userId = props.userId;
-    this.expiresAt = props.expiresAt;
+  // Public constructor for MikroORM compatibility
+  constructor(props?: SessionProps) {
+    if (props) {
+      this.id = props.id;
+      this.userId = props.userId;
+      this.expiresAt = props.expiresAt;
+    }
   }
 
   // Factory method for creating new sessions

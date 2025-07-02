@@ -4,50 +4,54 @@ import { Todo } from './src/entities/models/todo.entity';
 import { Session } from './src/entities/models/session.entity';
 
 export default defineConfig({
-  entities: [User, Todo, Session],
+  // ✅ Direct entity references (not entitiesDirs)
+  entities: [Todo, User, Session],
   
-  // Use DATABASE_URL for Supabase connection
+  // ✅ Connection
   clientUrl: process.env.DATABASE_URL,
   
-  // ✅ Serverless-optimized connection pool
-  pool: {
-    min: 0,              // ✅ No minimum connections (serverless-friendly)
-    max: 5,              // ✅ Lower max for Supabase (avoid overwhelming)
-    acquireTimeoutMillis: 60000,  // ✅ Longer timeout for serverless cold starts
-    createTimeoutMillis: 30000,
-    destroyTimeoutMillis: 5000,
-    reapIntervalMillis: 1000,     // ✅ Aggressive cleanup of idle connections
-    createRetryIntervalMillis: 200,
-    idleTimeoutMillis: 10000,     // ✅ Shorter idle timeout (10s)
+  // ✅ Disable cache completely for Vercel compatibility
+  metadataCache: {
+    enabled: false,
   },
   
-  // SSL configuration for Supabase (REQUIRED)
+  // ✅ Disable force entity constructor to fix prototype issues
+  forceEntityConstructor: false,
+  
+  // ✅ Simplified discovery settings
+  discovery: {
+    warnWhenNoEntities: false,
+    requireEntitiesArray: true,
+  },
+  
+  // ✅ SSL configuration for Supabase
   driverOptions: {
     connection: {
       ssl: process.env.DATABASE_URL?.includes('supabase.com') ? { 
         rejectUnauthorized: false,
         sslmode: 'require'
       } : false,
-      // Add connection timeout for Supabase
-      connect_timeout: 10,
-      application_name: 'nextjs_clean_architecture',
     },
   },
   
-  // Development settings
-  debug: process.env.NODE_ENV === 'development',
-  
-  // Migration settings
+  // ✅ Migrations configuration
   migrations: {
     path: './src/infrastructure/migrations',
     pathTs: './src/infrastructure/migrations',
   },
   
-  // Ensure connection is closed properly for serverless
-  forceUndefined: true,
+  // ✅ Serverless-optimized connection pool
+  pool: {
+    min: 0,
+    max: 5,
+    acquireTimeoutMillis: 60000,
+    createTimeoutMillis: 30000,
+    destroyTimeoutMillis: 5000,
+    reapIntervalMillis: 1000,
+    createRetryIntervalMillis: 200,
+    idleTimeoutMillis: 10000,
+  },
   
-  // Use reflection for development, build metadata for production
-  metadataProvider: process.env.NODE_ENV === 'production' 
-    ? require('@mikro-orm/reflection').TsMorphMetadataProvider 
-    : require('@mikro-orm/reflection').ReflectMetadataProvider,
+  // ✅ Enhanced debugging for Vercel
+  debug: process.env.VERCEL === '1',
 }); 

@@ -1,7 +1,6 @@
 import { injectable, inject } from 'tsyringe';
 import { EntityManager } from '@mikro-orm/core';
-import { Todo } from '../../../entities/models/todo.entity';
-import { User } from '../../../entities/models/user.entity';
+import { Todo, User } from '../../../entities';
 import type { ITodoRepository, ITodoApplicationService } from './interfaces';
 import type { IUserRepository } from '../user/interfaces';
 import type { IAuthenticationService } from '../user/interfaces/authentication.service.interface';

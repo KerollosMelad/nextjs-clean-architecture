@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe';
 import { EntityManager } from '@mikro-orm/core';
-import { User } from '../../entities/models/user.entity';
+import { User } from '../../entities';
 import type { IUserRepository } from '../../application/modules';
 import { INFRASTRUCTURE_TOKENS } from '../di/database/database.module';
 

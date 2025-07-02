@@ -1,16 +1,18 @@
 import { injectable, inject } from "tsyringe";
 import { randomBytes } from "crypto";
+import { EntityManager } from '@mikro-orm/core';
 import { SESSION_COOKIE } from "../../../config";
 import { IAuthenticationService } from "../../application/modules/user/interfaces/authentication.service.interface";
 import type { ISessionRepository, IUserRepository } from "../../application/modules";
 import { REPOSITORY_TOKENS } from "../repositories/repositories.di";
-import { User } from "../../entities/models/user.entity";
-import { Session } from "../../entities/models/session.entity";
-import { Cookie } from "../../entities/models/cookie";
+import { INFRASTRUCTURE_TOKENS } from '../di/database/database.module';
+import { User, Session, Cookie } from "../../entities";
 
 @injectable()
 export class AuthenticationService implements IAuthenticationService {
   constructor(
+    @inject(INFRASTRUCTURE_TOKENS.EntityManager) 
+    private readonly em: EntityManager,
     @inject(REPOSITORY_TOKENS.ISessionRepository) 
     private readonly sessionRepo: ISessionRepository,
     @inject(REPOSITORY_TOKENS.IUserRepository) 
@@ -37,7 +39,13 @@ export class AuthenticationService implements IAuthenticationService {
     const sessionId = this.generateSessionId();
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     
-    const session = Session.create(sessionId, user.getId(), expiresAt);
+    // Create session using em.create to ensure proper entity registration
+    const session = this.em.create(Session, {
+      id: sessionId,
+      userId: user.getId(),
+      expiresAt: expiresAt,
+      user: user
+    });
     await this.sessionRepo.create(session);
     
     const cookie: Cookie = {

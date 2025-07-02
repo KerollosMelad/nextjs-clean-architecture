@@ -1,7 +1,7 @@
-import { Entity, PrimaryKey, Property, ManyToOne } from '@mikro-orm/core';
-import type { User } from './user.entity';
+import { Entity, PrimaryKey, Property, ManyToOne, Rel } from '@mikro-orm/core';
 import { InputParseError } from '../errors/common';
 import { UnauthorizedError } from '../errors/auth';
+import type { User } from './user.entity';
 
 export interface TodoProps {
   id?: number; // Optional for new entities, required for database reconstruction
@@ -13,29 +13,34 @@ export interface TodoProps {
 @Entity()
 export class Todo {
   @PrimaryKey()
-  private id?: number; // ✅ Optional until set by database
+  public id?: number; // ✅ Optional until set by database
 
   @Property()
-  private content!: string;
+  public content!: string;
 
   @Property()
-  private completed!: boolean;
+  public completed!: boolean;
 
   @Property({ name: 'user_id' })
-  private userId!: string;
+  public userId!: string;
 
-  // 🎯 Navigation Property with Lazy Loading (using string literal to avoid circular deps)
-  @ManyToOne('User', { lazy: true, persist: false })
+  // ✅ String reference - MikroORM handles discovery properly
+  @ManyToOne(() => require('./user.entity').User as any, { 
+    fieldName: 'user_id',
+    persist: false 
+  })
   public user!: User;
 
-  // Private constructor to enforce factory methods
-  private constructor(props: TodoProps) {
-    if (props.id !== undefined) {
-      this.id = props.id; // Only set if provided (database reconstruction)
+  // Public constructor for MikroORM compatibility
+  constructor(props?: TodoProps) {
+    if (props) {
+      if (props.id !== undefined) {
+        this.id = props.id; // Only set if provided (database reconstruction)
+      }
+      this.content = props.content;
+      this.completed = props.completed;
+      this.userId = props.userId;
     }
-    this.content = props.content;
-    this.completed = props.completed;
-    this.userId = props.userId;
   }
 
   // Factory method for creating new todos

@@ -1,6 +1,4 @@
-import { Cookie } from '../../../../entities/models/cookie';
-import { Session } from '../../../../entities/models/session.entity';
-import { User } from '../../../../entities/models/user.entity';
+import { Cookie, Session, User } from '../../../../entities';
 
 export interface IAuthenticationService {
   generateUserId(): string;

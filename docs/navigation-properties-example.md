@@ -82,7 +82,7 @@ export class TodoApplicationService {
 ### **Lazy Loading Setup**
 ```typescript
 // All relationships use lazy: true
-@ManyToOne(() => User, { joinColumn: 'user_id', lazy: true })
+@ManyToOne(() => User, { joinColumn: 'user_id' })
 public user!: User;
 ```
 
