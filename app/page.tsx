@@ -6,7 +6,7 @@ import {
   AuthenticationError,
   UnauthenticatedError,
 } from '@/src/entities/errors/auth';
-import { Todo } from '@/src/entities/models/todo';
+import type { TodoDTO } from './types';
 import {
   Card,
   CardContent,
@@ -17,43 +17,25 @@ import { Separator } from './_components/ui/separator';
 import { UserMenu } from './_components/ui/user-menu';
 import { CreateTodo } from './add-todo';
 import { Todos } from './todos';
-import { getInjection } from '@/di/container';
-
-async function getTodos(sessionId: string | undefined) {
-  const instrumentationService = getInjection('IInstrumentationService');
-  return await instrumentationService.startSpan(
-    {
-      name: 'getTodos',
-      op: 'function.nextjs',
-    },
-    async () => {
-      try {
-        const getTodosForUserController = getInjection(
-          'IGetTodosForUserController'
-        );
-        return await getTodosForUserController(sessionId);
-      } catch (err) {
-        if (
-          err instanceof UnauthenticatedError ||
-          err instanceof AuthenticationError
-        ) {
-          redirect('/sign-in');
-        }
-        const crashReporterService = getInjection('ICrashReporterService');
-        crashReporterService.report(err);
-        throw err;
-      }
-    }
-  );
-}
+import { getTodosAction } from './actions';
 
 export default async function Home() {
   const sessionId = cookies().get(SESSION_COOKIE)?.value;
 
-  let todos: Todo[];
+  // Redirect to sign-in if not authenticated
+  if (!sessionId) {
+    redirect('/sign-in');
+  }
+
+  let todos: TodoDTO[];
   try {
-    todos = await getTodos(sessionId);
+    // Call server action instead of directly accessing DI services
+    todos = await getTodosAction();
   } catch (err) {
+    // Handle authentication errors by redirecting to sign-in
+    if (err instanceof UnauthenticatedError) {
+      redirect('/sign-in');
+    }
     throw err;
   }
 

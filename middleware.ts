@@ -1,6 +1,4 @@
 import { NextResponse, type NextRequest } from 'next/server';
-
-import { getInjection } from '@/di/container';
 import { SESSION_COOKIE } from '@/config';
 
 export async function middleware(request: NextRequest) {
@@ -10,15 +8,23 @@ export async function middleware(request: NextRequest) {
 
   if (!isAuthPath) {
     const sessionId = request.cookies.get(SESSION_COOKIE)?.value;
+    
+    // If no session cookie, redirect to sign-in
     if (!sessionId) {
       return NextResponse.redirect(new URL('/sign-in', request.url));
     }
-    try {
-      const authenticationService = getInjection('IAuthenticationService');
-      await authenticationService.validateSession(sessionId);
-    } catch (err) {
-      return NextResponse.redirect(new URL('/sign-in', request.url));
+    
+    // Basic session format validation (Edge Runtime compatible)
+    if (!sessionId || sessionId.length < 10 || sessionId.length > 100) {
+      // Invalid session format, clear cookie and redirect
+      const response = NextResponse.redirect(new URL('/sign-in', request.url));
+      response.cookies.delete(SESSION_COOKIE);
+      return response;
     }
+
+    // 🎯 Advanced validation happens server-side in actions/pages
+    // This middleware just ensures basic format validation
+    // Real database validation occurs in the application layer
   }
 
   return NextResponse.next();

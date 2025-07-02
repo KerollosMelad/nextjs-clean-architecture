@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { Loader } from 'lucide-react';
-
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
 import { Button } from '../../_components/ui/button';
 import {
   Card,
@@ -15,11 +16,12 @@ import {
 import { Input } from '../../_components/ui/input';
 import { Label } from '../../_components/ui/label';
 import { Separator } from '../../_components/ui/separator';
-import { signIn } from '../actions';
+import { signInAction } from '../actions';
 
 export default function SignIn() {
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -28,11 +30,19 @@ export default function SignIn() {
     const formData = new FormData(event.currentTarget);
 
     setLoading(true);
-    const res = await signIn(formData);
-    if (res && res.error) {
+    setError(undefined); // Clear any previous errors
+    
+    const res = await signInAction(formData);
+    
+    if (res?.success) {
+      // ✅ Successful authentication - redirect to home page
+      router.push('/');
+      router.refresh(); // Refresh to update auth state
+    } else if (res?.error) {
+      // ❌ Authentication failed - show error
       setError(res.error);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
