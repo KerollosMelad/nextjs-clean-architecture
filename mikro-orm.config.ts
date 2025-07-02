@@ -1,4 +1,5 @@
 import { defineConfig } from '@mikro-orm/postgresql';
+import { FileCacheAdapter } from '@mikro-orm/core'; // Ensure FileCacheAdapter is imported
 import { User } from './src/entities/models/user.entity';
 import { Todo } from './src/entities/models/todo.entity';
 import { Session } from './src/entities/models/session.entity';
@@ -44,10 +45,25 @@ export default defineConfig({
   },
   
   // Ensure connection is closed properly for serverless
-  forceUndefined: true,
+  // forceUndefined: true, // We'll rely on cache and proper ORM lifecycle management.
+
+  // Metadata provider: TsMorph for development (and cache generation),
+  // ReflectMetadataProvider for production (as cache should be primary).
+  // However, MikroORM automatically uses cache if `cache.enabled` is true and cache exists.
+  // TsMorph is needed for `cache:generate` which runs with NODE_ENV=production.
+  metadataProvider: require('@mikro-orm/reflection').TsMorphMetadataProvider,
   
-  // Use reflection for development, build metadata for production
-  metadataProvider: process.env.NODE_ENV === 'production' 
-    ? require('@mikro-orm/reflection').TsMorphMetadataProvider 
-    : require('@mikro-orm/reflection').ReflectMetadataProvider,
-}); 
+  // Explicitly declare entities (already done, which is good)
+  // entities: [User, Todo, Session], // This is already present and correct
+
+  // Cache configuration: enabled for production, uses FileCacheAdapter.
+  // The cache is generated during the build step.
+  metadataCache: { // Corrected property name to metadataCache
+    enabled: process.env.NODE_ENV === 'production',
+    pretty: false,
+    adapter: FileCacheAdapter, // Use imported FileCacheAdapter
+    options: {
+      cacheDir: process.env.NODE_ENV === 'production' ? '/tmp/mikro-orm-cache' : './temp'
+    }
+  },
+});

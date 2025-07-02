@@ -12,6 +12,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "declaration": true, // Added for MikroORM TsMorphMetadataProvider
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "plugins": [

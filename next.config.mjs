@@ -5,6 +5,7 @@ import webpack from 'webpack';
 const nextConfig = {
   experimental: {
     instrumentationHook: true,
+    // outputFileTracingIncludes removed
   },
   webpack: (config, { isServer }) => {
     // Exclude MikroORM and database-related modules from client-side bundle
