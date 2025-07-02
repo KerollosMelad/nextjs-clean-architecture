@@ -22,7 +22,7 @@
     "@mikro-orm/core": "^6.0.0",
     "@mikro-orm/migrations": "^6.0.0",
     "@mikro-orm/postgresql": "^6.0.0",
-    "@mikro-orm/reflection": "^6.0.0",
+    "@mikro-orm/reflection": "^6.4.16",
     "@radix-ui/react-avatar": "^1.1.0",
     "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-dropdown-menu": "^2.1.1",

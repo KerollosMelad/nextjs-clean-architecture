@@ -1,5 +1,5 @@
 import { Entity, PrimaryKey, Property, ManyToOne } from '@mikro-orm/core';
-import type { User } from './user.entity';
+import type { User } from '../types';
 
 export interface SessionProps {
   id: string;
@@ -18,7 +18,8 @@ export class Session {
   @Property({ name: 'expires_at' })
   private expiresAt!: Date;
 
-  @ManyToOne({ entity: 'User', lazy: true, persist: false })
+  // ✅ String reference - no circular dependency
+  @ManyToOne('User', { lazy: true, persist: false })
   public user!: User;
 
   // Private constructor to enforce factory methods

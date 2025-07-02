@@ -1,7 +1,7 @@
-import { Entity, PrimaryKey, Property, ManyToOne } from '@mikro-orm/core';
-import type { User } from './user.entity';
+import { Entity, PrimaryKey, Property, ManyToOne, Rel } from '@mikro-orm/core';
 import { InputParseError } from '../errors/common';
 import { UnauthorizedError } from '../errors/auth';
+import type { User } from '../types';
 
 export interface TodoProps {
   id?: number; // Optional for new entities, required for database reconstruction
@@ -24,8 +24,8 @@ export class Todo {
   @Property({ name: 'user_id' })
   private userId!: string;
 
-  // 🎯 Navigation Property with Lazy Loading
-  @ManyToOne({ entity: 'User', lazy: true, persist: false })
+  // ✅ String reference - no circular dependency
+  @ManyToOne('User', { lazy: true, persist: false })
   public user!: User;
 
   // Private constructor to enforce factory methods
