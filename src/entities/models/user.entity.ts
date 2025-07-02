@@ -12,13 +12,13 @@ export interface UserProps {
 @Entity()
 export class User {
   @PrimaryKey()
-  private id!: string;
+  public id!: string;
 
   @Property()
-  private username!: string;
+  public username!: string;
 
   @Property({ name: 'password_hash' })
-  private passwordHash!: string;
+  public passwordHash!: string;
 
   // ✅ String references - MikroORM handles discovery properly  
   @OneToMany('Todo', 'user')

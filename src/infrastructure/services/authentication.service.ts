@@ -43,7 +43,8 @@ export class AuthenticationService implements IAuthenticationService {
     const session = this.em.create(Session, {
       id: sessionId,
       userId: user.getId(),
-      expiresAt: expiresAt
+      expiresAt: expiresAt,
+      user: user
     });
     await this.sessionRepo.create(session);
     

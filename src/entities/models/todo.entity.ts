@@ -13,13 +13,13 @@ export interface TodoProps {
 @Entity()
 export class Todo {
   @PrimaryKey()
-  private id?: number; // ✅ Optional until set by database
+  public id?: number; // ✅ Optional until set by database
 
   @Property()
-  private content!: string;
+  public content!: string;
 
   @Property()
-  private completed!: boolean;
+  public completed!: boolean;
 
   @Property({ name: 'user_id' })
   public userId!: string;

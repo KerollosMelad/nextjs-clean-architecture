@@ -10,13 +10,13 @@ export interface SessionProps {
 @Entity()
 export class Session {
   @PrimaryKey()
-  private id!: string;
+  public id!: string;
 
   @Property({ name: 'user_id' })
-  private userId!: string;
+  public userId!: string;
 
   @Property({ name: 'expires_at' })
-  private expiresAt!: Date;
+  public expiresAt!: Date;
 
   // ✅ String reference - MikroORM handles discovery properly
   @ManyToOne('User', { 
