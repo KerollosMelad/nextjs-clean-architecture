@@ -16,7 +16,6 @@ import {
 import { Input } from '../../_components/ui/input';
 import { Label } from '../../_components/ui/label';
 import { Separator } from '../../_components/ui/separator';
-import { signUpAction } from '../actions';
 
 export default function SignUp() {
   const [error, setError] = useState<string>();
@@ -28,9 +27,13 @@ export default function SignUp() {
     if (loading) return;
 
     const formData = new FormData(event.currentTarget);
+    const password = formData.get('password')?.toString();
+    const confirmPassword = formData.get('confirm_password')?.toString();
 
-    const password = formData.get('password')!.toString();
-    const confirmPassword = formData.get('confirm_password')!.toString();
+    if (!password || !confirmPassword) {
+      setError('All fields are required');
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError('Passwords must match');
@@ -38,17 +41,25 @@ export default function SignUp() {
     }
 
     setLoading(true);
-    setError(undefined); // Clear any previous errors
-    
-    const res = await signUpAction(formData);
-    
-    if (res?.success) {
-      // ✅ Successful registration - redirect to home page
-      router.push('/');
-      router.refresh(); // Refresh to update auth state
-    } else if (res?.error) {
-      // ❌ Registration failed - show error
-      setError(res.error);
+    setError(undefined);
+
+    try {
+      const response = await fetch('/api/auth/sign-up', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        router.push('/');
+        router.refresh();
+      } else {
+        setError(result.error || 'An unexpected error occurred');
+      }
+    } catch (error) {
+      setError('Network error. Please try again.');
+    } finally {
       setLoading(false);
     }
   };

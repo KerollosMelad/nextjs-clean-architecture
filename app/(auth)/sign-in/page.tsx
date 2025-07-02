@@ -1,8 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { Loader } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '../../_components/ui/button';
@@ -16,7 +16,6 @@ import {
 import { Input } from '../../_components/ui/input';
 import { Label } from '../../_components/ui/label';
 import { Separator } from '../../_components/ui/separator';
-import { signInAction } from '../actions';
 
 export default function SignIn() {
   const [error, setError] = useState<string>();
@@ -28,19 +27,34 @@ export default function SignIn() {
     if (loading) return;
 
     const formData = new FormData(event.currentTarget);
+    const username = formData.get('username')?.toString();
+    const password = formData.get('password')?.toString();
+
+    if (!username || !password) {
+      setError('Username and password are required');
+      return;
+    }
 
     setLoading(true);
-    setError(undefined); // Clear any previous errors
-    
-    const res = await signInAction(formData);
-    
-    if (res?.success) {
-      // ✅ Successful authentication - redirect to home page
-      router.push('/');
-      router.refresh(); // Refresh to update auth state
-    } else if (res?.error) {
-      // ❌ Authentication failed - show error
-      setError(res.error);
+    setError(undefined);
+
+    try {
+      const response = await fetch('/api/auth/sign-in', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        router.push('/');
+        router.refresh();
+      } else {
+        setError(result.error || 'Invalid credentials');
+      }
+    } catch (error) {
+      setError('Network error. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
@@ -50,7 +64,7 @@ export default function SignIn() {
       <CardHeader>
         <CardTitle>Sign in</CardTitle>
         <CardDescription>
-          Enter your email below to login to your account
+          Enter your username and password to access your account
         </CardDescription>
       </CardHeader>
       <Separator />
@@ -73,13 +87,13 @@ export default function SignIn() {
               <Input id="password" type="password" name="password" required />
             </div>
             <Button type="submit" disabled={loading} className="w-full">
-              {loading ? <Loader className="animate-spin" /> : 'Login'}
+              {loading ? <Loader className="animate-spin" /> : 'Sign in'}
             </Button>
           </div>
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{' '}
             <Link href="/sign-up" className="underline">
-              Sign up
+              Create an account
             </Link>
           </div>
         </form>
