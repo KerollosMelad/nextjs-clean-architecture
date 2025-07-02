@@ -9,6 +9,12 @@ export default defineConfig({
   // Use DATABASE_URL for Supabase connection
   clientUrl: process.env.DATABASE_URL,
   
+  // ✅ Disable discovery cache for serverless environments
+  discovery: {
+    disableDynamicFileAccess: true,
+    warnWhenNoEntities: false,
+  },
+  
   // ✅ Serverless-optimized connection pool
   pool: {
     min: 0,              // ✅ No minimum connections (serverless-friendly)
