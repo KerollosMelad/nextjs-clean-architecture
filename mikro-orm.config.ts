@@ -1,9 +1,11 @@
 import { defineConfig } from '@mikro-orm/postgresql';
-import { User, Todo, Session } from './src/entities';
+import { User } from './src/entities/models/user.entity';
+import { Todo } from './src/entities/models/todo.entity';
+import { Session } from './src/entities/models/session.entity';
 
 export default defineConfig({
   // ✅ Direct entity references (not entitiesDirs)
-  entities: [User, Todo, Session],
+  entities: [Todo, User, Session],
   
   // ✅ Connection
   clientUrl: process.env.DATABASE_URL,
