@@ -1,55 +1,96 @@
 import { defineConfig } from '@mikro-orm/postgresql';
 import { MemoryCacheAdapter, GeneratedCacheAdapter } from '@mikro-orm/core';
-import { User } from './src/entities/models/user.entity';
-import { Todo } from './src/entities/models/todo.entity';
-import { Session } from './src/entities/models/session.entity';
+import { User, Todo, Session } from './src/entities';
 
 const isProduction = process.env.NODE_ENV === 'production';
+const isVercel = process.env.VERCEL === '1';
+
+console.log('🔧 MikroORM Config Loading:', {
+  NODE_ENV: process.env.NODE_ENV,
+  isProduction,
+  isVercel,
+  DATABASE_URL: process.env.DATABASE_URL ? '✅ Set' : '❌ Missing',
+  cacheDir: './temp',
+  cacheFile: './temp/metadata.json'
+});
+
+// Check if cache file exists
+const fs = require('fs');
+const path = require('path');
+const cacheFilePath = path.join(process.cwd(), 'temp', 'metadata.json');
+const cacheExists = fs.existsSync(cacheFilePath);
+
+console.log('📁 Cache Status:', {
+  cacheFilePath,
+  cacheExists,
+  workingDirectory: process.cwd()
+});
+
+if (cacheExists) {
+  try {
+    const cacheStats = fs.statSync(cacheFilePath);
+    console.log('📊 Cache File Info:', {
+      size: cacheStats.size,
+      modified: cacheStats.mtime.toISOString()
+    });
+  } catch (error) {
+    console.error('❌ Cache file stat error:', error);
+  }
+}
+
+// Log entities being imported
+console.log('🏗️ Entities:', {
+  User: typeof User,
+  Todo: typeof Todo,
+  Session: typeof Session,
+  userConstructor: User.name,
+  todoConstructor: Todo.name,
+  sessionConstructor: Session.name
+});
 
 export default defineConfig({
-  // ✅ Direct imports - most reliable for Vercel
+  // Direct entity imports (not entitiesDirs)
   entities: [User, Todo, Session],
   
-  // ✅ Production-ready metadata cache for Vercel
+  // ✅ Production: Use pre-built cache, Development: Use memory cache
   metadataCache: {
     enabled: true,
-    adapter: isProduction ? GeneratedCacheAdapter : MemoryCacheAdapter,
-    options: isProduction ? {
-      // This will be generated via CLI: npx mikro-orm cache:generate --combined
+    adapter: isProduction && cacheExists ? GeneratedCacheAdapter : MemoryCacheAdapter,
+    options: isProduction && cacheExists ? {
       data: (() => {
         try {
           return require('./temp/metadata.json');
-        } catch {
-          // Fallback for development or if cache file doesn't exist yet
+        } catch (error) {
+          console.error('❌ Failed to load cache file:', error);
           return {};
         }
       })()
     } : {},
   },
-  
+
   // ✅ Serverless-optimized discovery settings
   discovery: {
     warnWhenNoEntities: false,
     requireEntitiesArray: true,
     disableDynamicFileAccess: isProduction,
-    alwaysAnalyseProperties: false, // ✅ Critical for Vercel
+    alwaysAnalyseProperties: false,
   },
-  
-  // Use DATABASE_URL for Supabase connection
+
+  // Use DATABASE_URL for connection
   clientUrl: process.env.DATABASE_URL,
   
   // ✅ Serverless-optimized connection pool
   pool: {
-    min: 0,              // ✅ No minimum connections (serverless-friendly)
-    max: 5,              // ✅ Lower max for Supabase (avoid overwhelming)
-    acquireTimeoutMillis: 60000,  // ✅ Longer timeout for serverless cold starts
+    min: 0,
+    max: 5,
+    acquireTimeoutMillis: 60000,
     createTimeoutMillis: 30000,
     destroyTimeoutMillis: 5000,
-    reapIntervalMillis: 1000,     // ✅ Aggressive cleanup of idle connections
+    reapIntervalMillis: 1000,
     createRetryIntervalMillis: 200,
-    idleTimeoutMillis: 10000,     // ✅ Shorter idle timeout (10s)
+    idleTimeoutMillis: 10000,
   },
-  
+
   // SSL configuration for Supabase (REQUIRED)
   driverOptions: {
     connection: {
@@ -57,21 +98,24 @@ export default defineConfig({
         rejectUnauthorized: false,
         sslmode: 'require'
       } : false,
-      // Add connection timeout for Supabase
       connect_timeout: 10,
       application_name: 'nextjs_clean_architecture',
     },
   },
   
-  // Development settings
-  debug: process.env.NODE_ENV === 'development',
+  // Enhanced logging for debugging
+  debug: !isProduction || isVercel, // Enable debug logs on Vercel
+  logger: (message) => {
+    if (message.includes('discovery') || message.includes('entity') || message.includes('cache')) {
+      console.log('🔍 MikroORM:', message);
+    }
+  },
   
-  // Migration settings
   migrations: {
     path: './src/infrastructure/migrations',
     pathTs: './src/infrastructure/migrations',
   },
-  
+
   // Ensure connection is closed properly for serverless
   forceUndefined: true,
   

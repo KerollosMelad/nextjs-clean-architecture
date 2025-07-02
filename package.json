@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:vercel": "npm run cache:generate:vercel && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",
@@ -19,6 +20,7 @@
     "schema:update": "mikro-orm schema:update --config ./mikro-orm.config.ts",
     "cache:generate": "mikro-orm cache:generate --combined --ts --config ./mikro-orm.config.ts",
     "cache:generate:win": "$env:DATABASE_URL='postgresql://dummy:dummy@localhost:5432/dummy'; mikro-orm cache:generate --combined --ts --config ./mikro-orm.config.ts",
+    "cache:generate:vercel": "cross-env DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy mikro-orm cache:generate --combined --ts --config ./mikro-orm.config.ts",
     "cache:clear": "powershell -Command \"Remove-Item -Path .next, temp, dist -Recurse -Force -ErrorAction SilentlyContinue\"",
     "clean:build": "npm run cache:clear && npm run build"
   },
@@ -61,6 +63,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@vitest/coverage-istanbul": "^2.0.5",
+    "cross-env": "^7.0.3",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
     "eslint-plugin-boundaries": "^4.2.2",
