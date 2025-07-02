@@ -40,3 +40,6 @@ sqlite.db
 
 # Environment variables
 .env
+
+# MikroORM metadata cache
+/temp/

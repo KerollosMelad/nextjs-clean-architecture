@@ -1,27 +1,41 @@
 import { defineConfig } from '@mikro-orm/postgresql';
-import { MemoryCacheAdapter } from '@mikro-orm/core';
+import { MemoryCacheAdapter, GeneratedCacheAdapter } from '@mikro-orm/core';
 import { User } from './src/entities/models/user.entity';
 import { Todo } from './src/entities/models/todo.entity';
 import { Session } from './src/entities/models/session.entity';
+
+const isProduction = process.env.NODE_ENV === 'production';
 
 export default defineConfig({
   // ✅ Direct imports - most reliable for Vercel
   entities: [User, Todo, Session],
   
-  // ✅ Explicit discovery settings for Vercel
+  // ✅ Production-ready metadata cache for Vercel
+  metadataCache: {
+    enabled: true,
+    adapter: isProduction ? GeneratedCacheAdapter : MemoryCacheAdapter,
+    options: isProduction ? {
+      // This will be generated via CLI: npx mikro-orm cache:generate --combined
+      data: (() => {
+        try {
+          return require('./temp/metadata.json');
+        } catch {
+          // Fallback for development or if cache file doesn't exist yet
+          return {};
+        }
+      })()
+    } : {},
+  },
+  
+  // ✅ Serverless-optimized discovery settings
   discovery: {
     warnWhenNoEntities: false,
     requireEntitiesArray: true,
-    disableDynamicFileAccess: true,
+    disableDynamicFileAccess: isProduction,
   },
   
   // Use DATABASE_URL for Supabase connection
   clientUrl: process.env.DATABASE_URL,
-  
-  // ✅ Use memory cache for serverless environments (Vercel)
-  metadataCache: {
-    adapter: MemoryCacheAdapter,
-  },
   
   // ✅ Serverless-optimized connection pool
   pool: {

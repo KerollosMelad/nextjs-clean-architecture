@@ -16,7 +16,8 @@
     "migration:fresh": "mikro-orm migration:fresh --config ./mikro-orm.config.ts",
     "schema:create": "mikro-orm schema:create --config ./mikro-orm.config.ts",
     "schema:drop": "mikro-orm schema:drop --config ./mikro-orm.config.ts",
-    "schema:update": "mikro-orm schema:update --config ./mikro-orm.config.ts"
+    "schema:update": "mikro-orm schema:update --config ./mikro-orm.config.ts",
+    "cache:generate": "mikro-orm cache:generate --combined --config ./mikro-orm.config.ts"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.0.0",

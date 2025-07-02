@@ -5,6 +5,19 @@ import webpack from 'webpack';
 const nextConfig = {
   experimental: {
     instrumentationHook: true,
+    // ✅ Critical for MikroORM on Vercel - tells Next.js to treat these packages as external in server components
+    serverComponentsExternalPackages: [
+      '@mikro-orm/core',
+      '@mikro-orm/postgresql',
+      '@mikro-orm/reflection',
+      '@mikro-orm/migrations',
+      '@mikro-orm/knex',
+      'ts-morph',
+      'pg',
+      'pg-native',
+      'tsyringe',
+      'reflect-metadata',
+    ],
   },
   webpack: (config, { isServer }) => {
     // Exclude MikroORM and database-related modules from client-side bundle
