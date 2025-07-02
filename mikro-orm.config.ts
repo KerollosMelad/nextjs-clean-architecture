@@ -1,5 +1,5 @@
 import { defineConfig } from '@mikro-orm/postgresql';
-// Removed import of Options type
+import { FileCacheAdapter } from '@mikro-orm/core'; // Ensure FileCacheAdapter is imported
 import { User } from './src/entities/models/user.entity';
 import { Todo } from './src/entities/models/todo.entity';
 import { Session } from './src/entities/models/session.entity';
@@ -58,11 +58,10 @@ export default defineConfig({
 
   // Cache configuration: enabled for production, uses FileCacheAdapter.
   // The cache is generated during the build step.
-  // THIS IS NOW A TOP-LEVEL PROPERTY
-  cache: {
+  metadataCache: { // Corrected property name to metadataCache
     enabled: process.env.NODE_ENV === 'production',
     pretty: false,
-    adapter: require('@mikro-orm/core').FileCacheAdapter,
+    adapter: FileCacheAdapter, // Use imported FileCacheAdapter
     options: { cacheDir: './temp' } // Ensures consistency with Vercel logs
   },
-} as any); // Cast to any
+}); // Removed 'as any' cast
