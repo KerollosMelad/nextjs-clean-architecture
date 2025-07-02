@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Loader } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '../../_components/ui/button';
 import {
@@ -15,11 +16,12 @@ import {
 import { Input } from '../../_components/ui/input';
 import { Label } from '../../_components/ui/label';
 import { Separator } from '../../_components/ui/separator';
-import { signUp } from '../actions';
+import { signUpAction } from '../actions';
 
 export default function SignUp() {
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -36,11 +38,19 @@ export default function SignUp() {
     }
 
     setLoading(true);
-    const res = await signUp(formData);
-    if (res && res.error) {
+    setError(undefined); // Clear any previous errors
+    
+    const res = await signUpAction(formData);
+    
+    if (res?.success) {
+      // ✅ Successful registration - redirect to home page
+      router.push('/');
+      router.refresh(); // Refresh to update auth state
+    } else if (res?.error) {
+      // ❌ Registration failed - show error
       setError(res.error);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

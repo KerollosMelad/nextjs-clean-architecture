@@ -16,18 +16,18 @@
       },
       {
         "mode": "full",
-        "type": "use-cases",
-        "pattern": ["src/application/use-cases/**/*"]
+        "type": "application-services",
+        "pattern": ["src/application/modules/**/*"]
       },
       {
         "mode": "full",
         "type": "service-interfaces",
-        "pattern": ["src/application/services/**/*"]
+        "pattern": ["src/application/modules/**/interfaces/**/*", "src/application/services/**/*"]
       },
       {
         "mode": "full",
         "type": "repository-interfaces",
-        "pattern": ["src/application/repositories/**/*"]
+        "pattern": ["src/application/modules/**/interfaces/**/*"]
       },
       {
         "mode": "full",
@@ -56,7 +56,7 @@
         "rules": [
           {
             "from": "web",
-            "allow": ["web", "entities", "di"]
+            "allow": ["web", "entities", "di", "infrastructure", "application-services", "service-interfaces"]
           },
           {
             "from": "controllers",
@@ -64,16 +64,16 @@
               "entities",
               "service-interfaces",
               "repository-interfaces",
-              "use-cases"
+              "application-services"
             ]
           },
           {
             "from": "infrastructure",
-            "allow": ["service-interfaces", "repository-interfaces", "entities"]
+            "allow": ["service-interfaces", "repository-interfaces", "entities", "infrastructure", "application-services"]
           },
           {
-            "from": "use-cases",
-            "allow": ["entities", "service-interfaces", "repository-interfaces"]
+            "from": "application-services",
+            "allow": ["entities", "service-interfaces", "repository-interfaces", "infrastructure", "application-services"]
           },
           {
             "from": "service-interfaces",
@@ -94,7 +94,7 @@
               "controllers",
               "service-interfaces",
               "repository-interfaces",
-              "use-cases",
+              "application-services",
               "infrastructure"
             ]
           }

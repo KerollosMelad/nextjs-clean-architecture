@@ -6,12 +6,11 @@ import { toast } from 'sonner';
 
 import { Checkbox } from './_components/ui/checkbox';
 import { cn } from './_components/utils';
-import { bulkUpdate, toggleTodo } from './actions';
+import { bulkUpdateTodosAction, toggleTodoAction } from './actions';
 import { Button } from './_components/ui/button';
+import type { TodoDTO } from './types';
 
-type Todo = { id: number; todo: string; userId: string; completed: boolean };
-
-export function Todos({ todos }: { todos: Todo[] }) {
+export function Todos({ todos }: { todos: TodoDTO[] }) {
   const [bulkMode, setBulkMode] = useState(false);
   const [dirty, setDirty] = useState<number[]>([]);
   const [deleted, setDeleted] = useState<number[]>([]);
@@ -29,13 +28,11 @@ export function Todos({ todos }: { todos: Todo[] }) {
           setDirty([...dirty, id]);
         }
       } else {
-        const res = await toggleTodo(id);
-        if (res) {
-          if (res.error) {
-            toast.error(res.error);
-          } else if (res.success) {
-            toast.success('Todo toggled!');
-          }
+        try {
+          await toggleTodoAction(id);
+          toast.success('Todo toggled!');
+        } catch (error) {
+          toast.error('Failed to toggle todo');
         }
       }
     },
@@ -65,18 +62,18 @@ export function Todos({ todos }: { todos: Todo[] }) {
 
   const updateAll = async () => {
     setLoading(true);
-    const res = await bulkUpdate(dirty, deleted);
+    try {
+      const formData = new FormData();
+      dirty.forEach(id => formData.append('todoIds', id.toString()));
+      await bulkUpdateTodosAction(formData);
+      toast.success('Bulk update completed!');
+    } catch (error) {
+      toast.error('Failed to update todos');
+    }
     setLoading(false);
     setBulkMode(false);
     setDirty([]);
     setDeleted([]);
-    if (res) {
-      if (res.error) {
-        toast.error(res.error);
-      } else if (res.success) {
-        toast.success('Bulk update completed!');
-      }
-    }
   };
 
   return (
@@ -111,7 +108,7 @@ export function Todos({ todos }: { todos: Todo[] }) {
                     deleted.findIndex((t) => t === todo.id) > -1,
                 })}
               >
-                {todo.todo}
+                {todo.content}
               </label>
               {bulkMode && (
                 <Button

@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 
 import { Button } from './_components/ui/button';
 import { Input } from './_components/ui/input';
-import { createTodo } from './actions';
+import { createTodoAction } from './actions';
 
 export function CreateTodo() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -19,18 +19,15 @@ export function CreateTodo() {
     const formData = new FormData(event.currentTarget);
 
     setLoading(true);
-    const res = await createTodo(formData);
-
-    if (res) {
-      if (res.error) {
-        toast.error(res.error);
-      } else if (res.success) {
-        toast.success('Todo(s) created!');
-
-        if (inputRef.current) {
-          inputRef.current.value = '';
-        }
+    try {
+      await createTodoAction(formData);
+      toast.success('Todo created!');
+      
+      if (inputRef.current) {
+        inputRef.current.value = '';
       }
+    } catch (error) {
+      toast.error('Failed to create todo');
     }
     setLoading(false);
   };
@@ -39,7 +36,7 @@ export function CreateTodo() {
     <form onSubmit={handleSubmit} className="flex items-center w-full gap-2">
       <Input
         ref={inputRef}
-        name="todo"
+        name="content"
         className="flex-1"
         placeholder="Take out trash"
       />

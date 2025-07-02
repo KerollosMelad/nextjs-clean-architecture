@@ -1,7 +1,68 @@
 import { withSentryConfig } from '@sentry/nextjs';
+import webpack from 'webpack';
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  experimental: {
+    instrumentationHook: true,
+  },
+  webpack: (config, { isServer }) => {
+    // Exclude MikroORM and database-related modules from client-side bundle
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+        path: false,
+        os: false,
+        stream: false,
+        util: false,
+        url: false,
+        querystring: false,
+        punycode: false,
+        http: false,
+        https: false,
+        zlib: false,
+        child_process: false,
+      };
+
+      // Exclude server-only modules from client bundle
+      config.externals = config.externals || [];
+      config.externals.push({
+        '@mikro-orm/core': 'commonjs @mikro-orm/core',
+        '@mikro-orm/postgresql': 'commonjs @mikro-orm/postgresql',
+        '@mikro-orm/reflection': 'commonjs @mikro-orm/reflection',
+        '@mikro-orm/migrations': 'commonjs @mikro-orm/migrations',
+        '@mikro-orm/knex': 'commonjs @mikro-orm/knex',
+        'pg-native': 'commonjs pg-native',
+        'pg': 'commonjs pg',
+        'ts-morph': 'commonjs ts-morph',
+        'tsyringe': 'commonjs tsyringe',
+        'libsql': 'commonjs libsql',
+        'mariadb': 'commonjs mariadb',
+        'mariadb/callback': 'commonjs mariadb/callback',
+      });
+
+      // Exclude all @libsql modules from client bundle
+      config.plugins.push(
+        new webpack.IgnorePlugin({
+          resourceRegExp: /^@libsql\//,
+        })
+      );
+    }
+
+    // Ignore optional dependencies that cause warnings
+    config.externals.push('pg-native');
+    config.externals.push('@libsql/win32-x64-msvc');
+    config.externals.push('libsql');
+    config.externals.push('mariadb');
+    config.externals.push('mariadb/callback');
+
+    return config;
+  },
+};
 
 export default withSentryConfig(nextConfig, {
   // For all available options, see:
